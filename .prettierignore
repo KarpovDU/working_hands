@@ -1,0 +1,7 @@
+android/*
+ios/*
+__tests__/*
+.*
+*.json
+*.md
+*config*
