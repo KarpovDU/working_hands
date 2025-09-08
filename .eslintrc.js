@@ -32,10 +32,13 @@ module.exports = {
     },
   },
   rules: {
-    'react/prop-types': 'off',
     '@typescript-eslint/explicit-module-boundary-types': 'off',
     '@typescript-eslint/no-unused-vars': ['warn', { argsIgnorePattern: '^_' }],
+    '@typescript-eslint/no-var-requires': 'off',
     'react-native/no-inline-styles': 'warn',
+    'react-native/sort-styles': 'off',
+    'react-native/split-platform-components': 'off',
     'react/react-in-jsx-scope': 'off',
+    'react/prop-types': 'off',
   },
 };
