@@ -1,25 +1,30 @@
-import { StatusBar, StyleSheet, useColorScheme } from 'react-native';
-import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
+import { NavigationContainer } from '@react-navigation/native';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
-import { ShiftsList } from './components';
+import { ShiftsList, ShiftPage } from './pages';
+import { ShiftProvider } from './utils/context';
+import type { RootStackParamList } from './utils/types';
+
+const Stack = createNativeStackNavigator<RootStackParamList>();
 
 function App() {
-  const isDarkMode = useColorScheme() === 'dark';
-
   return (
     <SafeAreaProvider>
-      <SafeAreaView style={styles.SafeArea}>
-        <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} />
-        <ShiftsList />
-      </SafeAreaView>
+      <ShiftProvider>
+        <NavigationContainer>
+          <Stack.Navigator>
+            <Stack.Screen
+              name="ShiftsList"
+              component={ShiftsList}
+              options={{ headerShown: false }}
+            />
+            <Stack.Screen name="ShiftPage" component={ShiftPage} />
+          </Stack.Navigator>
+        </NavigationContainer>
+      </ShiftProvider>
     </SafeAreaProvider>
   );
 }
-
-const styles = StyleSheet.create({
-  SafeArea: {
-    flex: 1,
-  },
-});
 
 export default App;

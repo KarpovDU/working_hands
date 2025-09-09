@@ -1,3 +1,8 @@
+export type RootStackParamList = {
+  ShiftsList: undefined;
+  ShiftPage: { id: string };
+};
+
 export type Coordinates = {
   longitude: number;
   latitude: number;

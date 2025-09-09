@@ -1,25 +1,33 @@
 import React, { memo } from 'react';
 import { Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
-import type { Shift } from '../utils/types';
+import type { RootStackParamList, Shift } from '../utils/types';
 import { Colors } from '../utils/constants';
+import { useNavigation } from '@react-navigation/native';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
+
+type ShiftsListNavigationProp = NativeStackNavigationProp<
+  RootStackParamList,
+  'ShiftsList'
+>;
 
 const ShiftListItemComponent = ({ data }: { data: Shift }) => {
+  const navigation = useNavigation<ShiftsListNavigationProp>();
+
+  const handlePress = () => {
+    navigation.navigate('ShiftPage', { id: data.id });
+  };
+
   const isHiring = data.currentWorkers < data.planWorkers;
 
   return (
-    <TouchableOpacity style={styles.Card}>
+    <TouchableOpacity style={styles.Card} onPress={handlePress}>
       <Image source={{ uri: data.logo }} style={styles.Logo} />
       <View style={styles.Info}>
         <Text style={styles.Company}>{data.companyName}</Text>
         <Text style={styles.Address}>{data.address}</Text>
         <View style={styles.RowContainer}>
-          <Text
-            style={{
-              ...styles.Status,
-              color: isHiring ? Colors.positive : Colors.negative,
-            }}
-          >
+          <Text style={isHiring ? styles.Hiring : styles.Closed}>
             {isHiring ? 'Набор открыт' : 'Набор закрыт'}
           </Text>
           <Text style={styles.Price}>
@@ -77,9 +85,15 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
   },
-  Status: {
+  Hiring: {
     fontSize: 14,
     marginBottom: 4,
+    color: Colors.positive,
+  },
+  Closed: {
+    fontSize: 14,
+    marginBottom: 4,
+    color: Colors.negative,
   },
   Price: {
     fontSize: 12,
