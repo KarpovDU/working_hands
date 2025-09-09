@@ -33,7 +33,13 @@ module.exports = {
   },
   rules: {
     '@typescript-eslint/explicit-module-boundary-types': 'off',
-    '@typescript-eslint/no-unused-vars': ['warn', { argsIgnorePattern: '^_' }],
+    '@typescript-eslint/no-unused-vars': [
+      'warn', 
+      { 
+        argsIgnorePattern: '^_',
+        varsIgnorePattern: "^_",
+      }
+    ],
     '@typescript-eslint/no-var-requires': 'off',
     'react-native/no-inline-styles': 'warn',
     'react-native/sort-styles': 'off',
