@@ -1,19 +1,22 @@
+import Geolocation from '@react-native-community/geolocation';
 import React, { useEffect, useMemo, useState } from 'react';
 import {
-  View,
-  Text,
   Button,
+  FlatList,
+  Linking,
   PermissionsAndroid,
   Platform,
   StyleSheet,
-  Linking,
-  FlatList,
+  Text,
+  View,
 } from 'react-native';
-import Geolocation from '@react-native-community/geolocation';
 
-import { Loading } from './Loading';
+import { Loading } from '../components/Loading';
+import { ShiftListItem } from '../components/ShiftListItem';
 import type { Coordinates, Shift } from '../utils/types';
-import { ShiftListItem } from './ShiftListItem';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { useShift } from '../utils/context/ShiftContext';
+import { Colors } from '../utils/constants';
 
 type ServerData = {
   data: Shift[];
@@ -23,7 +26,7 @@ type ServerData = {
 export const ShiftsList = () => {
   const [location, setLocation] = useState<Coordinates | null>(null);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
-  const [serverData, setServerData] = useState<ServerData['data'] | null>(null);
+  const { setShifts, shifts } = useShift();
 
   // Запрос доступа.
   const requestPermission = async () => {
@@ -72,13 +75,12 @@ export const ShiftsList = () => {
   const fetchData = async (lat: number, lon: number) => {
     try {
       // Возваращется пустой ответ, временно подставляем свои координаты
-      const _url = `https://mobile.handswork.pro/api/shifts/map-list-unauthorized?latitude=${lat}&longitude=${lon}`;
-      const url = `https://mobile.handswork.pro/api/shifts/map-list-unauthorized?latitude=${45}&longitude=${39}`;
+      const url = `https://mobile.handswork.pro/api/shifts/map-list-unauthorized?latitude=${lat}&longitude=${lon}`;
 
       const res = await fetch(url);
       if (!res.ok) throw new Error(`Ошибка сервера: ${res.status}`);
       const data: ServerData = await res.json();
-      setServerData(data.data);
+      setShifts(data.data);
     } catch {
       setErrorMsg('Не удалось получить данные с сервера');
     }
@@ -101,40 +103,49 @@ export const ShiftsList = () => {
   // Отображение загрузки.
   const isLoading = useMemo(() => {
     if (errorMsg) return false;
-    if (location && serverData) return false;
+    if (location && shifts) return false;
     return true;
-  }, [errorMsg, location, serverData]);
+  }, [errorMsg, location, shifts]);
 
   if (isLoading)
     return (
-      <View style={styles.Container}>
+      <SafeAreaView style={styles.Container}>
         <Loading />
-      </View>
+      </SafeAreaView>
     );
 
   return (
-    <View style={styles.Container}>
-      {errorMsg ? (
-        <>
-          <Text style={styles.Text}>{errorMsg}</Text>
-          <Button
-            title="Включить передачу геоданных"
-            onPress={openAppSettings}
+    <SafeAreaView style={styles.SafeArea}>
+      <View style={styles.Container}>
+        {errorMsg ? (
+          <>
+            <Text style={styles.Text}>{errorMsg}</Text>
+            <Button
+              title="Включить передачу геоданных"
+              onPress={openAppSettings}
+            />
+          </>
+        ) : shifts?.length === 0 ? (
+          <Text style={[styles.Text, styles.Empty]}>
+            Работы поблизости не найдено
+          </Text>
+        ) : (
+          <FlatList
+            style={styles.Data}
+            data={shifts}
+            renderItem={shift => <ShiftListItem data={shift.item} />}
+            keyExtractor={shift => shift.id}
           />
-        </>
-      ) : (
-        <FlatList
-          style={styles.Data}
-          data={serverData}
-          renderItem={shift => <ShiftListItem data={shift.item} />}
-          keyExtractor={shift => shift.id}
-        />
-      )}
-    </View>
+        )}
+      </View>
+    </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
+  SafeArea: {
+    flex: 1,
+  },
   Container: {
     flex: 1,
     alignItems: 'center',
@@ -148,5 +159,8 @@ const styles = StyleSheet.create({
   Data: {
     flex: 1,
     width: '100%',
+  },
+  Empty: {
+    color: Colors.info,
   },
 });

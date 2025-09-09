@@ -1,9 +1,6 @@
-import { Text, View } from 'react-native';
+import { ActivityIndicator } from 'react-native';
+import { Colors } from '../utils/constants';
 
 export const Loading = () => {
-  return (
-    <View>
-      <Text>Загрузка...</Text>
-    </View>
-  );
+  return <ActivityIndicator size="large" color={Colors.accent} />;
 };
