@@ -1,1 +1,2 @@
-export * from './Geolocation';
+export * from './ShiftsList';
+export * from './Loading';
