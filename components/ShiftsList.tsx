@@ -7,12 +7,13 @@ import {
   Platform,
   StyleSheet,
   Linking,
-  ScrollView,
+  FlatList,
 } from 'react-native';
 import Geolocation from '@react-native-community/geolocation';
 
 import { Loading } from './Loading';
 import type { Coordinates, Shift } from '../utils/types';
+import { ShiftListItem } from './ShiftListItem';
 
 type ServerData = {
   data: Shift[];
@@ -22,7 +23,7 @@ type ServerData = {
 export const ShiftsList = () => {
   const [location, setLocation] = useState<Coordinates | null>(null);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
-  const [serverData, setServerData] = useState<ServerData | null>(null);
+  const [serverData, setServerData] = useState<ServerData['data'] | null>(null);
 
   // Запрос доступа.
   const requestPermission = async () => {
@@ -76,8 +77,8 @@ export const ShiftsList = () => {
 
       const res = await fetch(url);
       if (!res.ok) throw new Error(`Ошибка сервера: ${res.status}`);
-      const data = await res.json();
-      setServerData(data);
+      const data: ServerData = await res.json();
+      setServerData(data.data);
     } catch {
       setErrorMsg('Не удалось получить данные с сервера');
     }
@@ -122,9 +123,12 @@ export const ShiftsList = () => {
           />
         </>
       ) : (
-        <ScrollView style={styles.Data}>
-          <Text style={styles.Text}>{JSON.stringify(serverData, null, 2)}</Text>
-        </ScrollView>
+        <FlatList
+          style={styles.Data}
+          data={serverData}
+          renderItem={shift => <ShiftListItem data={shift.item} />}
+          keyExtractor={shift => shift.id}
+        />
       )}
     </View>
   );
@@ -143,5 +147,6 @@ const styles = StyleSheet.create({
   },
   Data: {
     flex: 1,
+    width: '100%',
   },
 });
